@@ -8,6 +8,12 @@ async function bootstrap() {
     AppModule,
     KafkaConfig(),
   );
+
+  // Inicie o microserviço Kafka
   await app.listen();
+
+  // Inicie o servidor HTTP
+  const httpApp = await NestFactory.create(AppModule);
+  await httpApp.listen(3001);
 }
 bootstrap();
