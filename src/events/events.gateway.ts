@@ -29,8 +29,8 @@ export class EventsGateway implements OnGatewayDisconnect {
 
   constructor() {
     this.kafka = new Kafka({
-      clientId: process.env.KAFKA_CONSUMER_GROUP_ID,
-      brokers: ['localhost:9092'],
+      clientId: process.env.KAFKA_CONSUMER_CLIENT_ID,
+      brokers: [process.env.KAFKA_BROKER],
     });
 
     this.kafkaProducer = this.kafka.producer();
@@ -42,7 +42,7 @@ export class EventsGateway implements OnGatewayDisconnect {
     });
 
     kafkaConsumer.connect();
-    kafkaConsumer.subscribe({ topic: 'request_order_topic' });
+    kafkaConsumer.subscribe({ topic: process.env.KAFKA_TOPIC_REQUEST_ORDER });
 
     kafkaConsumer.run({
       eachMessage: async ({ message }) => {
@@ -92,7 +92,7 @@ export class EventsGateway implements OnGatewayDisconnect {
       value: JSON.stringify(data),
     };
     const payload: ProducerRecord = {
-      topic: 'update_order_topic',
+      topic: process.env.KAFKA_TOPIC_UPDATE_ORDER,
       messages: [message],
     };
 

@@ -27,7 +27,7 @@ export class OrderRepository implements IOrderRepository {
         Product: true,
       },
       orderBy: {
-        created_at: 'desc', // 'desc' para ordem decrescente (do mais novo para o mais velho)
+        created_at: 'desc',
       },
     });
   }
