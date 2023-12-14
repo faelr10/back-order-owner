@@ -22,30 +22,23 @@ export class OrderService implements IOrderService {
       return;
     } catch (error) {
       console.log(error);
+      throw error;
     }
-  }
-
-  async pendingRequest(id: string): Promise<void> {
-    console.log(id);
-    return;
   }
 
   async getAllListOrders(): Promise<any[]> {
     try {
       const listOrders = await this.orderRepository.getAll();
-      const list = [];
 
-      listOrders.forEach((order) => {
-        list.push({
-          order_id: order.order_list_id,
-          account_name: order.Account.name,
-          status: order.status,
-        });
-      });
-
-      return list;
+      return listOrders.map((order) => ({
+        numer_order_id: order.numer_order_id,
+        account_name: order.Account.name,
+        status: order.status,
+        price: order.price,
+      }));
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      throw error;
     }
   }
 
@@ -57,16 +50,20 @@ export class OrderService implements IOrderService {
   }
 
   async updateStatusOrder(params: IUpdateStatusOrder): Promise<Order> {
-    let status: Status;
-    if (params.status === 'PROCESSING') {
-      status = Status.PROCESSING;
-    } else if (params.status === 'COMPLETED') {
-      status = Status.COMPLETED;
+    try {
+      const statusMap: Record<string, Status> = {
+        PROCESSING: Status.PROCESSING,
+        COMPLETED: Status.COMPLETED,
+      };
+      const status: Status = statusMap[params.status];
+      const update_order = await this.orderRepository.updateStatusOrder({
+        id: params.id,
+        status,
+      });
+      return update_order;
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
-    const update_order = await this.orderRepository.updateStatusOrder({
-      id: params.id,
-      status,
-    });
-    return update_order;
   }
 }
