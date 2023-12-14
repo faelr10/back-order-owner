@@ -35,7 +35,7 @@ export class OrderRepository implements IOrderRepository {
   getOrderByIdList(params: IFindByIdListParams): Promise<any> {
     try {
       return this.prisma.order.findFirst({
-        where: { order_list_id: params.id },
+        where: { numer_order_id: params.id },
         include: {
           Account: true,
           Product: true,
@@ -48,7 +48,7 @@ export class OrderRepository implements IOrderRepository {
 
   updateStatusOrder(params: IUpdateStatusOrderRepository): Promise<Order> {
     return this.prisma.order.update({
-      where: { order_list_id: params.id },
+      where: { numer_order_id: params.id },
       data: {
         status: params.status,
       },
