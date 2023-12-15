@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  IFindByIdListParams,
   IOrderService,
   IProcessOrderParams,
   IUpdateStatusOrder,
@@ -55,13 +54,14 @@ export class OrderService implements IOrderService {
     }
   }
 
-  async getOrderByIdList(params: IFindByIdListParams): Promise<any> {
+  async getOrderByIdList(id: string): Promise<any> {
     try {
-      const { account_id, Account, OrderProduct, ...order } =
-        await this.orderRepository.getOrderByIdList({
-          id: params.id,
-        });
+      const exists_order = await this.orderRepository.getOrderByIdList(id);
+      if (!exists_order) {
+        throw new Error('Order not found!');
+      }
 
+      const { account_id, Account, OrderProduct, ...order } = exists_order;
       const modifiedOrder = {
         ...order,
         OrderProduct: OrderProduct.map(
@@ -71,8 +71,8 @@ export class OrderService implements IOrderService {
 
       return modifiedOrder;
     } catch (error) {
-      console.error('Error fetching order:', error);
-      throw new Error('Failed to fetch order');
+      console.error(error);
+      throw error();
     }
   }
 

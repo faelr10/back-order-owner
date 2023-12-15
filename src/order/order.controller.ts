@@ -1,9 +1,12 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Patch } from '@nestjs/common';
 import { OrderService } from './order.service';
+import { IOrderService } from './structure/service.structure';
 
 @Controller('order')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    @Inject(OrderService) private readonly orderService: IOrderService,
+  ) {}
 
   @Get()
   getAll() {
@@ -11,7 +14,7 @@ export class OrderController {
   }
 
   @Get(':id')
-  getById(@Param('id') id: any) {
+  getById(@Param('id') id: string) {
     return this.orderService.getOrderByIdList(id);
   }
 

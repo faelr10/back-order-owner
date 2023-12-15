@@ -1,5 +1,4 @@
 import { Order, Status } from '@prisma/client';
-import { IFindByIdListParams } from './service.structure';
 
 export type IUpdateOrder = {
   order_id: string;
@@ -14,6 +13,6 @@ export type IUpdateStatusOrderRepository = {
 export interface IOrderRepository {
   updateOrder(data: IUpdateOrder): Promise<any>;
   getAll(): Promise<any[]>;
-  getOrderByIdList(params: IFindByIdListParams): Promise<any>;
+  getOrderByIdList(id: string): Promise<any>;
   updateStatusOrder(params: IUpdateStatusOrderRepository): Promise<Order>;
 }

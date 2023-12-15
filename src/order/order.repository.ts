@@ -36,22 +36,18 @@ export class OrderRepository implements IOrderRepository {
     });
   }
 
-  getOrderByIdList(params: IFindByIdListParams): Promise<any> {
-    try {
-      return this.prisma.order.findFirst({
-        where: { number_order_id: params.id },
-        include: {
-          Account: true,
-          OrderProduct: {
-            include: {
-              product: true,
-            },
+  async getOrderByIdList(id: string): Promise<any> {
+    return this.prisma.order.findFirst({
+      where: { number_order_id: id },
+      include: {
+        Account: true,
+        OrderProduct: {
+          include: {
+            product: true,
           },
         },
-      });
-    } catch (error) {
-      return error;
-    }
+      },
+    });
   }
 
   updateStatusOrder(params: IUpdateStatusOrderRepository): Promise<Order> {

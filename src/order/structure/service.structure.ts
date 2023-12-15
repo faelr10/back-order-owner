@@ -25,6 +25,6 @@ export type IAllDataOrders = {
 export interface IOrderService {
   processOrder(data: IProcessOrderParams): Promise<void>;
   getAllListOrders(): Promise<Order[]>;
-  getOrderByIdList(params: IFindByIdListParams): Promise<any>;
+  getOrderByIdList(id: string): Promise<any>;
   updateStatusOrder(params: IUpdateStatusOrder): Promise<Order>;
 }
