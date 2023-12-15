@@ -7,7 +7,7 @@ import {
 } from './structure/service.structure';
 import { OrderRepository } from './order.repository';
 import { IOrderRepository } from './structure/repository.structure';
-import { Order, Status } from '@prisma/client';
+import { Order, OrderProduct, Status } from '@prisma/client';
 @Injectable()
 export class OrderService implements IOrderService {
   constructor(
@@ -30,23 +30,50 @@ export class OrderService implements IOrderService {
     try {
       const listOrders = await this.orderRepository.getAll();
 
-      return listOrders.map((order) => ({
-        numer_order_id: order.numer_order_id,
-        account_name: order.Account.name,
-        status: order.status,
-        price: order.price,
-      }));
+      const modifiedOrders = await Promise.all(
+        listOrders.map(async (order) => {
+          const { account_id, Account, OrderProduct, ...restOrder } = order;
+
+          const modifiedOrder = {
+            ...restOrder,
+            OrderProduct: await Promise.all(
+              OrderProduct.map(
+                async ({ order_id, product_id, ...restProduct }) => {
+                  return restProduct;
+                },
+              ),
+            ),
+          };
+
+          return modifiedOrder;
+        }),
+      );
+      return modifiedOrders;
     } catch (error) {
-      console.error(error);
-      throw error;
+      console.error('Error fetching orders:', error);
+      throw new Error('Failed to fetch orders');
     }
   }
 
   async getOrderByIdList(params: IFindByIdListParams): Promise<any> {
-    const order = await this.orderRepository.getOrderByIdList({
-      id: params.id,
-    });
-    return order;
+    try {
+      const { account_id, Account, OrderProduct, ...order } =
+        await this.orderRepository.getOrderByIdList({
+          id: params.id,
+        });
+
+      const modifiedOrder = {
+        ...order,
+        OrderProduct: OrderProduct.map(
+          ({ order_id, product_id, ...rest }) => rest,
+        ),
+      };
+
+      return modifiedOrder;
+    } catch (error) {
+      console.error('Error fetching order:', error);
+      throw new Error('Failed to fetch order');
+    }
   }
 
   async updateStatusOrder(params: IUpdateStatusOrder): Promise<Order> {
