@@ -7,6 +7,7 @@ import {
 import { OrderRepository } from './order.repository';
 import { IOrderRepository } from './structure/repository.structure';
 import { Order, OrderProduct, Status } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 @Injectable()
 export class OrderService implements IOrderService {
   constructor(
@@ -31,7 +32,7 @@ export class OrderService implements IOrderService {
 
       const modifiedOrders = await Promise.all(
         listOrders.map(async (order) => {
-          const { account_id, Account, OrderProduct, ...restOrder } = order;
+          const { account_id, OrderProduct, ...restOrder } = order;
 
           const modifiedOrder = {
             ...restOrder,
@@ -43,10 +44,13 @@ export class OrderService implements IOrderService {
               ),
             ),
           };
-
+          modifiedOrder.price = new Decimal(
+            parseFloat(modifiedOrder.price.toFixed(2)),
+          );
           return modifiedOrder;
         }),
       );
+
       return modifiedOrders;
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -61,13 +65,17 @@ export class OrderService implements IOrderService {
         throw new Error('Order not found!');
       }
 
-      const { account_id, Account, OrderProduct, ...order } = exists_order;
+      const { account_id, OrderProduct, ...order } = exists_order;
       const modifiedOrder = {
         ...order,
         OrderProduct: OrderProduct.map(
           ({ order_id, product_id, ...rest }) => rest,
         ),
       };
+
+      modifiedOrder.price = new Decimal(
+        parseFloat(modifiedOrder.price.toFixed(2)),
+      );
 
       return modifiedOrder;
     } catch (error) {
