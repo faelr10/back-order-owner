@@ -24,7 +24,11 @@ export class OrderRepository implements IOrderRepository {
     return this.prisma.order.findMany({
       include: {
         Account: true,
-        Product: true,
+        OrderProduct: {
+          include: {
+            product: true,
+          },
+        },
       },
       orderBy: {
         created_at: 'desc',
@@ -35,10 +39,14 @@ export class OrderRepository implements IOrderRepository {
   getOrderByIdList(params: IFindByIdListParams): Promise<any> {
     try {
       return this.prisma.order.findFirst({
-        where: { numer_order_id: params.id },
+        where: { number_order_id: params.id },
         include: {
           Account: true,
-          Product: true,
+          OrderProduct: {
+            include: {
+              product: true,
+            },
+          },
         },
       });
     } catch (error) {
@@ -48,7 +56,7 @@ export class OrderRepository implements IOrderRepository {
 
   updateStatusOrder(params: IUpdateStatusOrderRepository): Promise<Order> {
     return this.prisma.order.update({
-      where: { numer_order_id: params.id },
+      where: { number_order_id: params.id },
       data: {
         status: params.status,
       },
